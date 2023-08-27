@@ -22,4 +22,7 @@ rank of the opponent. This creates a score that rates how positive or negative
 that game's result has on the team's season.
 
 ##### Initial Ranking
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;Initial&space;Ranking&space;Score=MoV\frac{(2*Opp.&space;Win&space;Pct)+Opp.&space;Opp.&space;Win&space;Pct}{3}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
+*O = Average Opponent Win Percentage*  
+*O<sub>2</sub> = Average Opponent's Opponent Win Percentage*  
+*MoV = Average Margin of Victory*  
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;Initial\,Ranking\,Score=MoV\,\frac{(2O)+O_2}{3}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />

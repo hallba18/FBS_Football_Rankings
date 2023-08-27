@@ -1,3 +1,7 @@
 
 *.o
 *.exe
+*.aux
+*.dvi
+*.log
+*.gz
