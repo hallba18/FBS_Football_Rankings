@@ -1,19 +1,29 @@
-\documentclass[onecolumn,fleqn,leqno]{minimal}
+\documentclass[onecolumn,fleqn,leqno]{article}
 \usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{relsize}
+\usepackage{ragged2e}
 
-\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \pagecolor[rgb]{0.05,0.05,0.05}
 \color[rgb]{0.75,0.42,0.75}
 \begin{document}
-	\fontsize{14}{13.5}\selectfont
-	\begin{align*}
-		&O =\: \text{Average Opponent's Win Percentage}\\
-		&O_2 =\: \text{Average of Opponent's Win Percentage for each Opponent}\\
-		&M_v =\: \text{Average Margin of Victory}
-	\end{align*}
+	\fontsize{13}{13.5}\selectfont
+	\section*{Intra-Season Rankings}
+	
+	Rankings within a season is split into two parts. The first part is an initial
+	ranking system that uses the cumulative margin of victory ($M_v$) for a team and
+	their strength of schedule (SoS) for that season. The second part is to scale
+	the results of each game based on location of the game, results, and initial
+	rank of the opponent. This creates a score that rates how positive or negative
+	that game's result has on the team's season.
+
+%	\fontsize{14}{13.5}\selectfont
+	\begin{flalign*}
+		O =\: \text{Average Opponent's Win Percentage}\\
+		O_2 =\: \text{Average of Opponent's Win Percentage for each Opponent}\\
+		M_v =\: \text{Average Margin of Victory}
+	\end{flalign*}
 	\begin{equation}
 		Initial\;Ranking\;Score=M_v\frac{2O+O_2}{3}
 	\end{equation}
@@ -22,8 +32,9 @@
 			\text{ Set of All FBS Teams}\\
 		\mathbf{G} &= \{\, g_t \:|\: t \in \mathbf{T}\,\}\::
 			\text{ the number of games for each FBS team }\\
-		\mathbf{M} &= \{\, [m_{t,1},m_{t,2},...\,,m_{t,g_t}] \:|\: t \in \mathbf{T} \,\}\::
-			\text{ Margin of victory for each game for team } t\\
+		\mathbf{M} &= \{\, [m_{t,1},m_{t,2},...\,,m_{t,g_t}] 
+			\:|\: t \in \mathbf{T} \,\} \\
+			&\:: \text{ Margin of victory for each game for team } t\\
 		\mathbf{R} &= \{\, [r_{t,0},r_{t,1},...\,,r_{t,g_t}] \:|\: 
 			t \in \mathbf{T},\: r_{t,0}=\text{Ranking for team }t \,\}\\
 			&\::\text{ the rankings for every FBS team and their opponents}\\
@@ -32,9 +43,6 @@
 	\begin{equation}
 		g(t \in \mathbf{T},\, 1 \leq i \leq g_t) \:: 
 			\text{ Opponent difficulty scaling function} \\
-		g(t,\,i)= \left(\frac{m_{t,i}}{\lvert m_{t,i}\rvert}\right)
-			\left(\frac{r_{t,0}-r_{t,i}}
-			{\lvert\mathbf{T}\rvert}\right)
 	\end{equation}
 	\begin{equation*}
 		\;\;\;\;\;\;g(t,\,i)= \left(\frac{m_{t,i}}{\lvert m_{t,i}\rvert}\right)

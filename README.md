@@ -20,9 +20,3 @@ their strength of schedule (SoS) for that season. The second part is to scale
 the results of each game based on location of the game, results, and initial
 rank of the opponent. This creates a score that rates how positive or negative
 that game's result has on the team's season.
-
-##### Initial Ranking
-*O = Average Opponent Win Percentage*  
-*O<sub>2</sub> = Average Opponent's Opponent Win Percentage*  
-*MoV = Average Margin of Victory*  
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;Initial\,Ranking\,Score=MoV\,\frac{(2O)+O_2}{3}" title="Initial Ranking Score Formula" />
