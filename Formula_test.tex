@@ -1,13 +1,18 @@
 \documentclass[onecolumn,fleqn,leqno]{minimal}
+\usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{relsize}
+
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+\pagecolor[rgb]{0.05,0.05,0.05}
+\color[rgb]{0.75,0.42,0.75}
 \begin{document}
 	\fontsize{14}{13.5}\selectfont
 	\begin{align*}
-		O &=\: \text{Average Opponent's Win Percentage}\\
-		O_2 &=\: \text{Average of Opponent's Win Percentage for each Opponent}\\
-		M_v &=\: \text{Average Margin of Victory}
+		&O =\: \text{Average Opponent's Win Percentage}\\
+		&O_2 =\: \text{Average of Opponent's Win Percentage for each Opponent}\\
+		&M_v =\: \text{Average Margin of Victory}
 	\end{align*}
 	\begin{equation}
 		Initial\;Ranking\;Score=M_v\frac{2O+O_2}{3}
@@ -25,12 +30,16 @@
 	\end{align*}
 %	\fontsize{20}{13.5}\selectfont
 	\begin{equation}
-		\Gamma(t \in \mathbf{T})=
-		3^{
-			\biggl(\dfrac{m_{t,i}}{\lvert m_{t,i}\rvert}
-			\cdot\dfrac{r_{t,0}-r_{t,i}}{n}\biggr)
-		}
+		g(t \in \mathbf{T},\, 1 \leq i \leq g_t) \:: 
+			\text{ Opponent difficulty scaling function} \\
+		g(t,\,i)= \left(\frac{m_{t,i}}{\lvert m_{t,i}\rvert}\right)
+			\left(\frac{r_{t,0}-r_{t,i}}
+			{\lvert\mathbf{T}\rvert}\right)
 	\end{equation}
+	\begin{equation*}
+		\;\;\;\;\;\;g(t,\,i)= \left(\frac{m_{t,i}}{\lvert m_{t,i}\rvert}\right)
+				  \left(\frac{r_{t,0}-r_{t,i}}{\lvert\mathbf{T}\rvert}\right)
+	\end{equation*} \vspace{5mm}
 	\begin{equation}
 		\Gamma(t \in \mathbf{T})=
 		\mathlarger{\mathlarger{\mathlarger{\sum}}_{i=1}^{g_t}}
