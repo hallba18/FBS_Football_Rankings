@@ -4,9 +4,10 @@
 \usepackage{amsfonts}
 \usepackage{relsize}
 \usepackage{ragged2e}
+\usepackage{mathrsfs}
 
-\pagecolor[rgb]{0.05,0.05,0.05}
-\color[rgb]{0.75,0.42,0.75}
+%\pagecolor[rgb]{0.05,0.05,0.05}
+%\color[rgb]{0.75,0.42,0.75}
 \begin{document}
 	\fontsize{13}{13.5}\selectfont
 	\section*{Intra-Season Rankings}
@@ -17,37 +18,59 @@
 	the results of each game based on location of the game, results, and initial
 	rank of the opponent. This creates a score that rates how positive or negative
 	that game's result has on the team's season.
-
-%	\fontsize{14}{13.5}\selectfont
+	
+	\section{Initial Team Rankings}
+	\vspace{-5mm}
 	\begin{flalign*}
-		O =\: \text{Average Opponent's Win Percentage}\\
-		O_2 =\: \text{Average of Opponent's Win Percentage for each Opponent}\\
-		M_v =\: \text{Average Margin of Victory}
+		O &=\: \text{Average Opponent's Win Percentage} &\\
+		O_2 &=\: \text{Average of Opponent's Win Percentage for each Opponent} &\\
+		M_v &=\: \text{Average Margin of Victory} &
 	\end{flalign*}
-	\begin{equation}
-		Initial\;Ranking\;Score=M_v\frac{2O+O_2}{3}
-	\end{equation}
-	\begin{align*}
-		\mathbf{T} &= \{\,t \:|\: t \in \text{FBS}\,\}\::
-			\text{ Set of All FBS Teams}\\
-		\mathbf{G} &= \{\, g_t \:|\: t \in \mathbf{T}\,\}\::
-			\text{ the number of games for each FBS team }\\
-		\mathbf{M} &= \{\, [m_{t,1},m_{t,2},...\,,m_{t,g_t}] 
-			\:|\: t \in \mathbf{T} \,\} \\
-			&\:: \text{ Margin of victory for each game for team } t\\
-		\mathbf{R} &= \{\, [r_{t,0},r_{t,1},...\,,r_{t,g_t}] \:|\: 
-			t \in \mathbf{T},\: r_{t,0}=\text{Ranking for team }t \,\}\\
-			&\::\text{ the rankings for every FBS team and their opponents}\\
-	\end{align*}
-%	\fontsize{20}{13.5}\selectfont
-	\begin{equation}
-		g(t \in \mathbf{T},\, 1 \leq i \leq g_t) \:: 
-			\text{ Opponent difficulty scaling function} \\
-	\end{equation}
 	\begin{equation*}
-		\;\;\;\;\;\;g(t,\,i)= \left(\frac{m_{t,i}}{\lvert m_{t,i}\rvert}\right)
-				  \left(\frac{r_{t,0}-r_{t,i}}{\lvert\mathbf{T}\rvert}\right)
-	\end{equation*} \vspace{5mm}
+		\textit{Initial Ranking Score}=M_v\frac{2O+O_2}{3}
+	\end{equation*}
+	
+	\section{Seasonal Team Rankings}
+	\subsection{Set Definitions}
+	\vspace{-3mm}
+	\begin{flalign*}
+		\mathbf{T} &= \{\,t \:|\: t \in \text{FBS}\,\}\::
+			\text{ Set of All FBS Teams} &\\
+		\mathbf{G} &= \{\, g_t \:|\: t \in \mathbf{T}\,\}\::
+			\text{ the number of games for each FBS team } &\\
+		\mathbf{M} &= \{\, [m_{t,1},m_{t,2},\dots\,,m_{t,g_t}] 
+			\:|\: t \in \mathbf{T} \,\} &\\
+			&\:: \text{ Margin of victory for each game for team } t &\\
+		\mathbf{R} &= \{\, [r_{t,0},r_{t,1},\dots\,,r_{t,g_t}] \:|\: 
+			t \in \mathbf{T},\: r_{t,0}=\text{Ranking for team }t \,\} &\\
+			&\::\text{ the rankings for every FBS team and their opponents} &\\
+		\mathbf{L} &= \{ [l \} &
+	\end{flalign*}
+	
+	\subsection{Opponent Difficulty Scaling}
+	$t \in \mathbf{T},\, 1 \leq i \leq g_t $
+	\begin{equation*}
+		g(t,\,i)= \left(\frac{m_{t,i}}{\lvert m_{t,i}\rvert}\right)
+			\left(\frac{r_{t,0}-r_{t,i}}{\lvert\mathbf{T}\rvert}\right)
+	\end{equation*}
+	
+	\subsection{Game Location Difficulty Scaling}
+	$r_{focus}=$ Ranking of the team being analyzed \\
+	$r_{opp}=$ Ranking of the opponent
+	\begin{equation*}
+		loc(x \in\,\text{\{Home, Neutral, Away\}})=\Biggl\{
+			\begin{matrix}
+				0.875 &: &x\:=\text{ Home} \\
+				1 &: &x\:=\text{ Neutral} \\
+				1.125 &: &x\:=\text{ Away}
+			\end{matrix}			
+		\Biggr\}
+	\end{equation*}
+	\begin{equation*}
+		h(r_{focus}, r_{away}, loc(x))= \,loc(x)+0.125\sqrt[3]{r_{opp}-r_{focus}}
+	\end{equation*}
+	\subsection{Scaled Game Score}
+	\subsection{Season Score}
 	\begin{equation}
 		\Gamma(t \in \mathbf{T})=
 		\mathlarger{\mathlarger{\mathlarger{\sum}}_{i=1}^{g_t}}
