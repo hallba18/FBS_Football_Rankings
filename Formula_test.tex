@@ -1,18 +1,43 @@
 \documentclass[onecolumn,fleqn,leqno]{minimal}
 \usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{relsize}
 \begin{document}
+	\fontsize{14}{13.5}\selectfont
+	\begin{align*}
+		O &=\: \text{Average Opponent's Win Percentage}\\
+		O_2 &=\: \text{Average of Opponent's Win Percentage for each Opponent}\\
+		M_v &=\: \text{Average Margin of Victory}
+	\end{align*}
 	\begin{equation}
-		O=\:\text{Average Opponent's Win Percentage}
+		Initial\;Ranking\;Score=M_v\frac{2O+O_2}{3}
 	\end{equation}
-
-	$$ O=\: \text{}  $$
-	$$ O_2=\: \text{Average of Opponent's Win Percentage for each Opponent} $$
-	$ MoV=\: $Average Margin of Victory
-	$$ Initial\;Ranking\;Score=MoV\frac{2O+O_2}{3} $$  
-	$ T: Set\,of\,All\,F\!BS\,Teams $,
-	$ g_t = Number\,of\,games\,for\,team\,t $
-  
-  $$ \Gamma(\exists t \in T)=\frac{1}{20}\sum_{i=1,i\neq Team}^{100}i $$
-
- \end{flushleft}
+	\begin{align*}
+		\mathbf{T} &= \{\,t \:|\: t \in \text{FBS}\,\}\::
+			\text{ Set of All FBS Teams}\\
+		\mathbf{G} &= \{\, g_t \:|\: t \in \mathbf{T}\,\}\::
+			\text{ the number of games for each FBS team }\\
+		\mathbf{M} &= \{\, [m_{t,1},m_{t,2},...\,,m_{t,g_t}] \:|\: t \in \mathbf{T} \,\}\::
+			\text{ Margin of victory for each game for team } t\\
+		\mathbf{R} &= \{\, [r_{t,0},r_{t,1},...\,,r_{t,g_t}] \:|\: 
+			t \in \mathbf{T},\: r_{t,0}=\text{Ranking for team }t \,\}\\
+			&\::\text{ the rankings for every FBS team and their opponents}\\
+	\end{align*}
+%	\fontsize{20}{13.5}\selectfont
+	\begin{equation}
+		\Gamma(t \in \mathbf{T})=
+		3^{
+			\biggl(\dfrac{m_{t,i}}{\lvert m_{t,i}\rvert}
+			\cdot\dfrac{r_{t,0}-r_{t,i}}{n}\biggr)
+		}
+	\end{equation}
+	\begin{equation}
+		\Gamma(t \in \mathbf{T})=
+		\mathlarger{\mathlarger{\mathlarger{\sum}}_{i=1}^{g_t}}
+		m_{t,i}\cdot
+		3^{
+			\biggl(\dfrac{m_{t,i}}{\lvert m_{t,i}\rvert}
+			\cdot\dfrac{r_{t,0}-r_{t,i}}{n}\biggr)
+		}
+	\end{equation}
 \end{document}
