@@ -44,7 +44,9 @@
 		\mathbf{R} &= \{\, [r_{t,0},r_{t,1},\dots\,,r_{t,g_t}] \:|\: 
 			t \in \mathbf{T},\: r_{t,0}=\text{Ranking for team }t \,\} &\\
 			&\::\text{ the rankings for every FBS team and their opponents} &\\
-		\mathbf{L} &= \{ [l \} &
+		\mathbf{V} &= \{ [v_{t,1},v_{t,2},\dots\,,\,v_{t,g_t}] \:|\: 
+			t \in \mathbf{T},\:v_{t,i} \in \text{\{Home, Neutral, Away\}} \} &\\
+			&\::\text{ the location for every game for each FBS team} &
 	\end{flalign*}
 	
 	\subsection{Opponent Difficulty Scaling}
@@ -55,10 +57,9 @@
 	\end{equation*}
 	
 	\subsection{Game Location Difficulty Scaling}
-	$r_{focus}=$ Ranking of the team being analyzed \\
-	$r_{opp}=$ Ranking of the opponent
+	$t \in \mathbf{T},\, 1 \leq i \leq g_t $
 	\begin{equation*}
-		loc(x \in\,\text{\{Home, Neutral, Away\}})=\Biggl\{
+		\mathlarger{loc}(x \in\,\text{\{Home, Neutral, Away\}})=\Biggl\{
 			\begin{matrix}
 				0.875 &: &x\:=\text{ Home} \\
 				1 &: &x\:=\text{ Neutral} \\
@@ -67,17 +68,16 @@
 		\Biggr\}
 	\end{equation*}
 	\begin{equation*}
-		h(r_{focus}, r_{away}, loc(x))= \,loc(x)+0.125\sqrt[3]{r_{opp}-r_{focus}}
+		\mathlarger{h}(t, \,i)= \,loc(v_{t,i})+0.125\sqrt[3]{
+			\mathlarger{r}_{t,i}-\mathlarger{r}_{t,0}}
 	\end{equation*}
-	\subsection{Scaled Game Score}
+	
 	\subsection{Season Score}
-	\begin{equation}
-		\Gamma(t \in \mathbf{T})=
-		\mathlarger{\mathlarger{\mathlarger{\sum}}_{i=1}^{g_t}}
-		m_{t,i}\cdot
-		3^{
-			\biggl(\dfrac{m_{t,i}}{\lvert m_{t,i}\rvert}
-			\cdot\dfrac{r_{t,0}-r_{t,i}}{n}\biggr)
-		}
-	\end{equation}
+	\begin{equation*}
+		\mathlarger{\Gamma}(t \in \mathbf{T})= 
+			\mathlarger{\sum}_{i=1}^{g_t}
+			\,\mathlarger{m}_{t,i}\,\mathlarger{\cdot}\,
+			h(t,i)\,\mathlarger{\cdot}\,3^{\,g(t,i)}
+	\end{equation*}
+	
 \end{document}

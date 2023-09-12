@@ -13,10 +13,11 @@ is determined by the sum of how successful each individual season in addition to
 factors such as the number of national championships and records in New Years
 Six Bowl games and Non-NY6 bowl games.
 
-#### Intra-Season Rankings:
+#### Season Ranking Model:
 Rankings within a season is split into two parts. The first part is an initial
 ranking system that uses the cumulative margin of victory (MoV) for a team and
 their strength of schedule (SoS) for that season. The second part is to scale
 the results of each game based on location of the game, results, and initial
 rank of the opponent. This creates a score that rates how positive or negative
-that game's result has on the team's season.
+that game's result has on the team's season. Specifics for the model are located
+in the **FBS_Football_Rankings.pdf**. 
