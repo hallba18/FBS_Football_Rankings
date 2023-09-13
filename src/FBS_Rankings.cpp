@@ -1,11 +1,32 @@
 #include <string>
 #include <list>
 #include <cstdio>
+#include <cstring>
 #include "Team.h"
 
 int main(int argc, char ** argv)
 {
+    char * fname = new char[256];
+    FILE * fp = NULL;
     int retval = 0;
+
+    memset(fname, 0x00, sizeof(char) * 256);
+    if(argc == 2)
+    {
+        strcpy(fname, argv[1]);
+        fp = fopen(fname, "r");
+        if(fp)
+        {
+            printf("Success\n");
+            fclose(fp);
+        }
+        else
+        {
+            retval = -2;
+            printf("Failure to open file: %s", fname);
+        }
+    }
+    else    { retval = -1; }
 
     ///TODO: Parse input and open data file
 
@@ -35,5 +56,6 @@ int main(int argc, char ** argv)
 
     ///TODO: Write statistics to output file
 
+    if(fname)    { delete [] fname;    fname = NULL; }    
     return retval;
 }
