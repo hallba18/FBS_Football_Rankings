@@ -10,19 +10,26 @@ public class Team
     };
 
 	public:
+		Team * Create(char * name);
+        //Get functions for private members
         double GetWinPct(int season);
         double GetOppWinPct(int season);
+        double GetInitialRanking(int season);
+
+        //Add functions
         bool AddGameResult(int season, const Team * const opponent, 
                 int score, int location, bool isNT);
         bool AddSeasonResult(int season, );
-		Team * Create(int num_seasons, char * name);
+
+        //Finalize Functions
+        bool FinalizeSeason(int season);
+        bool FinalizeHistory(void);
 
 	private:
         //Historical Statistics Members
 		char * m_name;                  //School name
 		char * m_alias;                 //Alias for school ex. TCU
 		int m_num_seasons;              //Number of season in FBS
-        double m_init_score;            //Initial score for ranking teams
 		double m_final_score;           //Final historical score for school
 		int m_num_titles;               //Number of National Titles won
 
@@ -37,13 +44,17 @@ public class Team
 		double m_owp_ps[];              //Opponent win percentage each season
 		double m_oowp_ps[];             //Opponent's Opponent win percentage each season
 
-        //Season specific members
-		Team * m_opp_ps[][];            //Pointer to opponent teams each season
-        gameLocation m_locations[][];   //List of game locations each season
-        int m_results[][];              //List of game results each season
+        //Per-Season (ps) Score Members
+        double m_init_score_ps[];       //Initial ranking score per season
+        double m_final_score_ps[];      //Final score per season
+
+        //Per-Game (pg) Members
+		Team * m_opp_pg[][];            //Pointer to opponent teams each season
+        gameLocation m_location_pg[][]; //List of game locations each season
+        int m_result_pg[][];            //List of game results each season
 
         //Private Methods
-		Team * Create_this(int num_seasons, char * name);
-        Team(int num_seasons, char * name);
+		Team * Create_this(char * name);
+        Team(char * name);
         ~Team(void);
 }
