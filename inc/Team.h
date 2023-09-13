@@ -1,34 +1,41 @@
-#include "Season.h"
-
-public class Team
+class Team
 {
+    const int C_MAX_SEASONS = 40;
+
     enum gameLocation
     {
-        HOME,
+        AWAY = -1,
         NEUTRAL,
-        AWAY
+        HOME
     };
 
 	public:
 		Team * Create(char * name);
+
+
         //Get functions for private members
         double GetWinPct(int season);
         double GetOppWinPct(int season);
-        double GetInitialRanking(int season);
+        double GetInitialScore(int season);
+        double GetFinalScore(int season);
+        int GetInitialRank(int season);
+        int GetFinalRank(int season);
 
         //Add functions
         bool AddGameResult(int season, const Team * const opponent, 
-                int score, int location, bool isNT);
-        bool AddSeasonResult(int season, );
+                int score, gameLocation location);
+        bool AddSeasonResult(int season, int num_AA, bool claimed_NT);
 
         //Finalize Functions
-        bool FinalizeSeason(int season);
-        bool FinalizeHistory(void);
+        bool CalcWinPct(int season);
+        bool CalcOppWinPct(int season);
+        //bool FinalizeSeason(int season);
+        //bool FinalizeHistory(void);
 
 	private:
         //Historical Statistics Members
 		char * m_name;                  //School name
-		int m_num_seasons;              //Number of season in FBS
+		unsigned int m_num_seasons;     //Number of season in FBS
 		double m_final_score;           //Final historical score for school
 		int m_num_titles;               //Number of National Titles won
 
@@ -40,12 +47,14 @@ public class Team
 		int * m_losses_ps;              //Number of losses each season
 		int * m_ties_ps;                //Number of ties each season
         double * m_winpct_ps;           //Team win percentage each season
-		double * m_owp_ps;              //Opponent win percentage each season
-		double * m_oowp_ps;             //Opponent's Opp. win pct. each season
+		double * m_opp_winpct_ps;       //Opponent win percentage each season
+		double * m_o_opp_winpct_ps;     //Opponent's Opp. win pct. each season
 
         //Per-Season (ps) Score Members
         double * m_init_score_ps;       //Initial ranking score per season
         double * m_final_score_ps;      //Final score per season
+        int * m_init_rank_ps;           //Intial ranking per season
+        int * m_final_rank_ps;          //Final ranking per season
 
         //Per-Game (pg) Members
 		Team ** * m_opp_pg;             //Pointer to opponent teams each season
@@ -54,5 +63,9 @@ public class Team
 
         //Private Methods
         Team(char * name);
+        bool CalcOppOppWinPct(int season);
+        bool CalcInitialScore(int season);
+        bool CalcFinalScore(int season);
+        int GetSeasonIndex(int season);
         ~Team(void);
-}
+};
