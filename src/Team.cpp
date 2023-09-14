@@ -6,6 +6,42 @@
 /*******************************************************************/
 /*                         Public Methods                          */
 /*******************************************************************/
+//Public Destructor
+Team::~Team(void)
+{
+    if(m_seasons)           
+        { delete [] m_seasons;    m_seasons = NULL; }
+    if(m_num_aa_ps)         
+        { delete [] m_num_aa_ps;    m_num_aa_ps = NULL; }
+    if(m_num_games_ps)      
+        { delete [] m_num_games_ps;    m_num_games_ps = NULL; }
+    if(m_wins_ps)           
+        { delete [] m_wins_ps;    m_wins_ps = NULL; }
+    if(m_losses_ps)         
+        { delete [] m_losses_ps;    m_losses_ps = NULL; }
+    if(m_ties_ps)           
+        { delete [] m_ties_ps;    m_ties_ps = NULL; }
+    if(m_winpct_ps)         
+        { delete [] m_winpct_ps;    m_winpct_ps = NULL; }
+    if(m_opp_winpct_ps)     
+        { delete [] m_opp_winpct_ps;    m_opp_winpct_ps = NULL; }
+    if(m_o_opp_winpct_ps)   
+        { delete [] m_o_opp_winpct_ps;    m_o_opp_winpct_ps = NULL; }
+    if(m_init_score_ps)     
+        { delete [] m_init_score_ps;    m_init_score_ps = NULL; }
+    if(m_final_score_ps)    
+        { delete [] m_final_score_ps;    m_final_score_ps = NULL; }
+    if(m_init_rank_ps)      
+        { delete [] m_init_rank_ps;    m_init_rank_ps = NULL; }
+    if(m_final_rank_ps)     
+        { delete [] m_final_rank_ps;    m_final_rank_ps = NULL; }
+    if(m_opp_pg)            
+        { delete [] m_opp_pg;    m_opp_pg = NULL; }
+    if(m_location_pg)       
+        { delete [] m_location_pg;    m_location_pg = NULL; }
+    if(m_result_pg)         
+        { delete [] m_result_pg;    m_result_pg = NULL; }
+}
 
 /*******************************************************************/
 /*                         Team :: Create                          */
@@ -15,9 +51,13 @@
 /*  Output: Team *: Pointer to the new Team object                 */
 /*                                                                 */
 /*******************************************************************/
-Team * Team::Create(char * name)
+Team * Team::Create(const char * name)
 {
-    return (Team *) NULL;
+    Team * that = NULL;
+
+    that = new Team(name);
+
+    return that;
 }
 
 
@@ -258,7 +298,7 @@ int Team::GetSeasonIndex(int season)
 /*******************************************************************/
 /*                     Constructor & Destructor                    */
 /*******************************************************************/
-Team::Team(char * name)
+Team::Team(const char * name)
 {
     m_name = new char[strlen(name)];
     m_num_seasons       = 0;
@@ -300,42 +340,4 @@ Team::Team(char * name)
     memset(m_init_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
     memset(m_final_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
 
-}
-
-
-Team::~Team(void)
-{
-    
-    if(m_seasons)           
-        { delete [] m_seasons;    m_seasons = NULL; }
-    if(m_num_aa_ps)         
-        { delete [] m_num_aa_ps;    m_num_aa_ps = NULL; }
-    if(m_num_games_ps)      
-        { delete [] m_num_games_ps;    m_num_games_ps = NULL; }
-    if(m_wins_ps)           
-        { delete [] m_wins_ps;    m_wins_ps = NULL; }
-    if(m_losses_ps)         
-        { delete [] m_losses_ps;    m_losses_ps = NULL; }
-    if(m_ties_ps)           
-        { delete [] m_ties_ps;    m_ties_ps = NULL; }
-    if(m_winpct_ps)         
-        { delete [] m_winpct_ps;    m_winpct_ps = NULL; }
-    if(m_opp_winpct_ps)     
-        { delete [] m_opp_winpct_ps;    m_opp_winpct_ps = NULL; }
-    if(m_o_opp_winpct_ps)   
-        { delete [] m_o_opp_winpct_ps;    m_o_opp_winpct_ps = NULL; }
-    if(m_init_score_ps)     
-        { delete [] m_init_score_ps;    m_init_score_ps = NULL; }
-    if(m_final_score_ps)    
-        { delete [] m_final_score_ps;    m_final_score_ps = NULL; }
-    if(m_init_rank_ps)      
-        { delete [] m_init_rank_ps;    m_init_rank_ps = NULL; }
-    if(m_final_rank_ps)     
-        { delete [] m_final_rank_ps;    m_final_rank_ps = NULL; }
-    if(m_opp_pg)            
-        { delete [] m_opp_pg;    m_opp_pg = NULL; }
-    if(m_location_pg)       
-        { delete [] m_location_pg;    m_location_pg = NULL; }
-    if(m_result_pg)         
-        { delete [] m_result_pg;    m_result_pg = NULL; }
 }

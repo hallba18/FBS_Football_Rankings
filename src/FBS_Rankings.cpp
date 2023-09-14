@@ -5,20 +5,33 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include "Team.h"
 
 using namespace std;
 
+
 int main(int argc, char ** argv)
 {
+    //First pass for determining unique FBS teams 
+    const string C_FBS = "fbs";
+    vector<string> C_1_FIELDS = {"\"Home Team\"","\"Home Division\"",
+            "\"Away Team\"","\"Away Division\""};
+    int p1_field_indexes[] = {-1, -1, -1, -1};
+
+    //Creating Teams list
+    map<const string, Team *> team_list;
+    map<const string, Team *>::iterator team_it;
+    Team * new_team = NULL;
+
     char * fname = new char[256];
-    string line;
-    string field;
+    int field_cnt, index_cnt, i;
+    string line, field;
+    string team_info[4];
     ifstream myfile;
     size_t pos, lastpos;// nextpos;
     vector<string>::iterator it;
-    vector<string> fields = {"\"Home Team\"","\"Home Division\"","\"Away Team\"","\"Away Division\""};
     int retval = 0;
 
     memset(fname, 0x00, sizeof(char) * 256);
@@ -28,40 +41,118 @@ int main(int argc, char ** argv)
         if(myfile.is_open())
         {
             getline(myfile, line);
+
+            //Iterates over the first line and finds the index of the 
+            //    C_1_FIELDS in that line
+            field_cnt = index_cnt = 0;
             lastpos = 0;
             pos = line.find(',');
             while (pos != string::npos) 
             {
-                //v.push_back(line.substr(lastpos, pos-lastpos));
+                it = find(C_1_FIELDS.begin(),C_1_FIELDS.end(),
+                        line.substr(lastpos, pos-lastpos));
+                if(C_1_FIELDS.end() != it)
+                {
+                    p1_field_indexes[index_cnt] = field_cnt;
+                    index_cnt++;
+                }
                 lastpos = ++pos;
                 pos = line.find(',', pos);
-                //nextpos = line.find(',', pos++);
-                cout << "-" << line.substr(lastpos, pos) << "\n";
-                it = find(fields.begin(),fields.end(),
-                        line.substr(lastpos, pos));
-                if(fields.end() != it)
+                field_cnt++;
+            }
+
+            if(!(p1_field_indexes[0] == -1 || p1_field_indexes[1] == -1 || 
+                p1_field_indexes[2] == -1 || p1_field_indexes[3] == -1))
+            {
+                //Parse the first game of the data file
+                for(i = 0; i < 10; i++)
                 {
-                    cout << *it;
+                    getline(myfile, line);
+                    field_cnt = index_cnt = 0;
+                    lastpos = 0;
+                    pos = line.find(',');
+                    while (pos != string::npos) 
+                    {
+                        if(p1_field_indexes[index_cnt] == field_cnt)
+                        {
+                            cout << line.substr(lastpos, pos-lastpos) << " ";
+                            team_info[index_cnt] = line.substr(lastpos, pos-lastpos);
+                            index_cnt++;
+                        }
+                        lastpos = ++pos;
+                        pos = line.find(',', pos);
+                        field_cnt++;
+                    }
+                    cout << "\n";
+                    if(C_FBS.compare(team_info[1]) == 0 && 
+                        team_list.find(team_info[0]) == team_list.end())
+                    {
+                        new_team = Team::Create(team_info[0].c_str());
+                        if(new_team)
+                        {
+                            team_list.emplace(team_info[0], new_team);
+                            cout << "Successfully created team: " <<
+                                team_info[0] << " @ " << (void *) new_team << "\n";
+                            new_team = NULL;
+                        }
+                        else
+                        {
+                            retval = -4;
+                            cout << "Unable to create team: " << team_info[0] 
+                                << "\n";
+                        }
+                    }
+                    else    
+                    { 
+                        cout << team_info[0] << " already in list or not FBS\n"; 
+                    }
+
+                    if(C_FBS.compare(team_info[3]) == 0 && 
+                        team_list.find(team_info[2]) == team_list.end())
+                    {
+                        new_team = Team::Create(team_info[2].c_str());
+                        if(new_team)
+                        {
+                            team_list.emplace(team_info[2], new_team);
+                            cout << "Successfully created team: " <<
+                                team_info[2] << " @ " << (void *) new_team << "\n";
+                            new_team = NULL;
+                        }
+                        else
+                        {
+                            retval = -4;
+                            cout << "Unable to create team: " << team_info[2] 
+                                << "\n";
+                        }
+                    }
+                    else    
+                    { 
+                        cout << team_info[2] << " already in list or not FBS\n"; 
+                    }
                 }
             }
-            
-            //for (int i = 0; i < v.size(); ++i) {
-            //    cout << v[i] << '\n';
-            //}
+            else
+            {
+                retval = -3;
+                cout << "Failed to get field reference indexes\n";
+            }
         }
         else
         {
             retval = -2;
-            printf("Failure to open file: %s", fname);
+            cout << "Failure to open file" << fname << "\n";
         }
     }
-    else    
+    else if(argc < 2)
     { 
         retval = -1; 
-        printf("Incorrect number of arguments");
+        cout << "Too few arguments\n";
     }
-
-    ///TODO: Parse input and open data file
+    else
+    {
+        retval = -1;
+        cout << "Too many argurments\n";
+    }
 
     ///TODO: Iterate over the file once
     ///TODO:    Are teams FBS? 
@@ -89,6 +180,20 @@ int main(int argc, char ** argv)
 
     ///TODO: Write statistics to output file
 
-    if(fname)    { delete [] fname;    fname = NULL; }    
+    if(new_team)
+    {
+        new_team->~Team();
+        new_team = NULL;
+    }
+    if(!team_list.empty())
+    {
+        for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+        {
+            (team_it->second)->~Team();
+            team_it->second = NULL;
+        }
+        team_list.clear();
+    }
+    //if(fname)    { delete [] fname;    fname = NULL; }
     return retval;
 }

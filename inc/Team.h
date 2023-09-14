@@ -10,8 +10,8 @@ class Team
     };
 
 	public:
-		Team * Create(char * name);
-
+        ~Team(void);
+		static Team * Create(const char * name);
 
         //Get functions for private members
         double GetWinPct(int season);
@@ -62,10 +62,9 @@ class Team
         int ** m_result_pg;             //List of game results each season
 
         //Private Methods
-        Team(char * name);
+        Team(const char * name);
         bool CalcOppOppWinPct(int season);
         bool CalcInitialScore(int season);
         bool CalcFinalScore(int season);
         int GetSeasonIndex(int season);
-        ~Team(void);
 };
