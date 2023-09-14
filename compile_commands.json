@@ -1,4 +1,4 @@
 [
-    { "directory": "E:/Coding/FBS_Football_Rankings", "file": "src/FBS_Rankings.cpp", "output": "C:/msys64/tmp/FBS_Rankings-7b5fb4.o", "arguments": ["C:/msys64/clang64/bin/clang++.exe", "-xc++", "src/FBS_Rankings.cpp", "-o", "C:/msys64/tmp/FBS_Rankings-7b5fb4.o", "--driver-mode=g++", "-I", "inc", "-Wall", "--target=x86_64-w64-windows-gnu"]},
-    { "directory": "E:/Coding/FBS_Football_Rankings", "file": "src/Team.cpp", "output": "C:/msys64/tmp/Team-2677ef.o", "arguments": ["C:/msys64/clang64/bin/clang++.exe", "-xc++", "src/Team.cpp", "-o", "C:/msys64/tmp/Team-2677ef.o", "--driver-mode=g++", "-I", "inc", "-Wall", "--target=x86_64-w64-windows-gnu"]}
+{ "directory": "E:/Coding/FBS_Football_Rankings", "file": "src/Ranking.cpp", "output": "obj/Ranking.o", "arguments": ["C:/msys64/clang64/bin/clang++.exe", "-xc++", "src/Ranking.cpp", "-o", "obj/Ranking.o", "--driver-mode=g++", "-I", "inc", "-c", "--target=x86_64-w64-windows-gnu"]},
+{ "directory": "E:/Coding/FBS_Football_Rankings", "file": "src/Team.cpp", "output": "obj/Team.o", "arguments": ["C:/msys64/clang64/bin/clang++.exe", "-xc++", "src/Team.cpp", "-o", "obj/Team.o", "--driver-mode=g++", "-I", "inc", "-c", "--target=x86_64-w64-windows-gnu"]},
 ]

@@ -1,5 +1,6 @@
 .cache/*
 logs/*
+*.o.json
 *.o
 *.exe
 *.aux
