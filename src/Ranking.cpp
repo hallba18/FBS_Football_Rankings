@@ -194,6 +194,6 @@ int main(int argc, char ** argv)
         }
         team_list.clear();
     }
-    //if(fname)    { delete [] fname;    fname = NULL; }
+    if(fname)    { delete [] fname;    fname = NULL; }
     return retval;
 }
