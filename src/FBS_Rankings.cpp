@@ -2,23 +2,52 @@
 #include <list>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 #include "Team.h"
+
+using namespace std;
 
 int main(int argc, char ** argv)
 {
     char * fname = new char[256];
-    FILE * fp = NULL;
+    string line;
+    string field;
+    ifstream myfile;
+    size_t pos, lastpos;// nextpos;
+    vector<string>::iterator it;
+    vector<string> fields = {"\"Home Team\"","\"Home Division\"","\"Away Team\"","\"Away Division\""};
     int retval = 0;
 
     memset(fname, 0x00, sizeof(char) * 256);
     if(argc == 2)
     {
-        strcpy(fname, argv[1]);
-        fp = fopen(fname, "r");
-        if(fp)
+        myfile.open(argv[1]);
+        if(myfile.is_open())
         {
-            printf("Success\n");
-            fclose(fp);
+            getline(myfile, line);
+            lastpos = 0;
+            pos = line.find(',');
+            while (pos != string::npos) 
+            {
+                //v.push_back(line.substr(lastpos, pos-lastpos));
+                lastpos = ++pos;
+                pos = line.find(',', pos);
+                //nextpos = line.find(',', pos++);
+                cout << "-" << line.substr(lastpos, pos) << "\n";
+                it = find(fields.begin(),fields.end(),
+                        line.substr(lastpos, pos));
+                if(fields.end() != it)
+                {
+                    cout << *it;
+                }
+            }
+            
+            //for (int i = 0; i < v.size(); ++i) {
+            //    cout << v[i] << '\n';
+            //}
         }
         else
         {
@@ -26,7 +55,11 @@ int main(int argc, char ** argv)
             printf("Failure to open file: %s", fname);
         }
     }
-    else    { retval = -1; }
+    else    
+    { 
+        retval = -1; 
+        printf("Incorrect number of arguments");
+    }
 
     ///TODO: Parse input and open data file
 
