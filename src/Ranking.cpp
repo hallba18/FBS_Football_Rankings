@@ -65,70 +65,80 @@ int main(int argc, char ** argv)
                 p1_field_indexes[2] == -1 || p1_field_indexes[3] == -1))
             {
                 //Parse the first game of the data file
-                for(i = 0; i < 10; i++)
+                while(!myfile.eof())
                 {
                     getline(myfile, line);
-                    field_cnt = index_cnt = 0;
-                    lastpos = 0;
-                    pos = line.find(',');
-                    while (pos != string::npos) 
+                    if(line.size() > 10)
                     {
-                        if(p1_field_indexes[index_cnt] == field_cnt)
-                        {
-                            cout << line.substr(lastpos, pos-lastpos) << " ";
-                            team_info[index_cnt] = line.substr(lastpos, pos-lastpos);
-                            index_cnt++;
-                        }
-                        lastpos = ++pos;
-                        pos = line.find(',', pos);
-                        field_cnt++;
-                    }
-                    cout << "\n";
-                    if(C_FBS.compare(team_info[1]) == 0 && 
-                        team_list.find(team_info[0]) == team_list.end())
-                    {
-                        new_team = Team::Create(team_info[0].c_str());
-                        if(new_team)
-                        {
-                            team_list.emplace(team_info[0], new_team);
-                            cout << "Successfully created team: " <<
-                                team_info[0] << " @ " << (void *) new_team << "\n";
-                            new_team = NULL;
-                        }
-                        else
-                        {
-                            retval = -4;
-                            cout << "Unable to create team: " << team_info[0] 
-                                << "\n";
-                        }
-                    }
-                    else    
-                    { 
-                        cout << team_info[0] << " already in list or not FBS\n"; 
-                    }
 
-                    if(C_FBS.compare(team_info[3]) == 0 && 
-                        team_list.find(team_info[2]) == team_list.end())
-                    {
-                        new_team = Team::Create(team_info[2].c_str());
-                        if(new_team)
+                        field_cnt = index_cnt = 0;
+                        lastpos = 0;
+                        pos = line.find(',');
+                        while (pos != string::npos) 
                         {
-                            team_list.emplace(team_info[2], new_team);
-                            cout << "Successfully created team: " <<
-                                team_info[2] << " @ " << (void *) new_team << "\n";
-                            new_team = NULL;
+                            if(p1_field_indexes[index_cnt] == field_cnt)
+                            {
+                                //cout << line.substr(lastpos, pos-lastpos) << " ";
+                                team_info[index_cnt] = line.substr(lastpos, pos-lastpos);
+                                index_cnt++;
+                            }
+                            lastpos = ++pos;
+                            pos = line.find(',', pos);
+                            field_cnt++;
                         }
-                        else
+                        //cout << "\n";
+                        if(C_FBS.compare(team_info[1]) == 0 && 
+                            team_list.find(team_info[0]) == team_list.end())
                         {
-                            retval = -4;
-                            cout << "Unable to create team: " << team_info[2] 
-                                << "\n";
+                            new_team = Team::Create(team_info[0].c_str());
+                            if(new_team)
+                            {
+                                team_list.emplace(team_info[0], new_team);
+                                printf("Successfully created team: "
+                                    "%s - %p\n", team_info[0].c_str(), 
+                                    (void *) new_team);
+                                //cout << "Successfully created team: " <<
+                                //    team_info[0] << " @ " << new_team << "\n";
+                                new_team = NULL;
+                            }
+                            else
+                            {
+                                retval = -4;
+                                cout << "Unable to create team: " << team_info[0] 
+                                    << "\n";
+                            }
+                        }
+                        //else    
+                        //{ 
+                        //    cout << team_info[0] << " already in list or not FBS\n"; 
+                        //}
+
+                        if(C_FBS.compare(team_info[3]) == 0 && 
+                            team_list.find(team_info[2]) == team_list.end())
+                        {
+                            new_team = Team::Create(team_info[2].c_str());
+                            if(new_team)
+                            {
+                                team_list.emplace(team_info[2], new_team);
+                                printf("Successfully created team: "
+                                    "%s - %p\n", team_info[2].c_str(), 
+                                    (void *) new_team);
+                                //cout << "Successfully created team: " <<
+                                //    team_info[2] << " @ " << (void *) new_team << "\n";
+                                new_team = NULL;
+                            }
+                            else
+                            {
+                                retval = -4;
+                                cout << "Unable to create team: " << team_info[2] 
+                                    << "\n";
+                            }
                         }
                     }
-                    else    
-                    { 
-                        cout << team_info[2] << " already in list or not FBS\n"; 
-                    }
+                    //else    
+                    //{ 
+                    //    cout << team_info[2] << " already in list or not FBS\n"; 
+                    //}
                 }
             }
             else
@@ -153,6 +163,8 @@ int main(int argc, char ** argv)
         retval = -1;
         cout << "Too many argurments\n";
     }
+
+    cout << "Successfully created " << team_list.size() << " Teams";
 
     ///TODO: Iterate over the file once
     ///TODO:    Are teams FBS? 

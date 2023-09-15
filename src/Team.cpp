@@ -339,5 +339,22 @@ Team::Team(const char * name)
     memset(m_final_score_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
     memset(m_init_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
     memset(m_final_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
+    /*m_seasons           = NULL;
+    m_num_aa_ps         = NULL;
+    m_num_games_ps      = NULL;
+    m_wins_ps           = NULL;
+    m_losses_ps         = NULL;
+    m_ties_ps           = NULL;
+    m_winpct_ps         = NULL;
+    m_opp_winpct_ps     = NULL;
+    m_o_opp_winpct_ps   = NULL;
 
+    m_init_score_ps     = NULL;
+    m_final_score_ps    = NULL;
+    m_init_rank_ps      = NULL;
+    m_final_rank_ps     = NULL;
+
+    m_opp_pg            = NULL;
+    m_location_pg       = NULL;
+    m_result_pg         = NULL;*/
 }
