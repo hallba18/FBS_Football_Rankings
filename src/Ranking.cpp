@@ -64,7 +64,6 @@ int main(int argc, char ** argv)
             if(!(p1_field_indexes[0] == -1 || p1_field_indexes[1] == -1 || 
                 p1_field_indexes[2] == -1 || p1_field_indexes[3] == -1))
             {
-                //Parse the first game of the data file
                 while(!myfile.eof())
                 {
                     getline(myfile, line);

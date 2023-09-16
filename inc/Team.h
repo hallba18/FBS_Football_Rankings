@@ -22,6 +22,7 @@ class Team
         int GetFinalRank(int season);
 
         //Add functions
+        bool AddGameCount(int season);
         bool AddGameResult(int season, const Team * const opponent, 
                 int score, gameLocation location);
         bool AddSeasonResult(int season, int num_AA, bool claimed_NT);
@@ -36,6 +37,7 @@ class Team
         //Historical Statistics Members
 		char * m_name;                  //School name
 		unsigned int m_num_seasons;     //Number of season in FBS
+        unsigned int m_game_it;         //Iterator for games in a season
 		double m_final_score;           //Final historical score for school
 		int m_num_titles;               //Number of National Titles won
 
