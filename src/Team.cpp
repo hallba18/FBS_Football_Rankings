@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstring>
 #include <cassert>
+#include <cstdio>
 #include "Team.h"
 
 /*******************************************************************/
@@ -36,7 +37,12 @@ Team::~Team(void)
     if(m_final_rank_ps)     
         { delete [] m_final_rank_ps;    m_final_rank_ps = NULL; }
     if(m_opp_pg)            
-        { delete [] m_opp_pg;    m_opp_pg = NULL; }
+    { 
+        for(int i = 0; i < (C_MAX_SEASONS * C_MAX_GAMES); i++)
+            { m_opp_pg[i] = NULL; }
+        delete [] m_opp_pg;
+        m_opp_pg = NULL;
+    }
     if(m_location_pg)       
         { delete [] m_location_pg;    m_location_pg = NULL; }
     if(m_result_pg)         
@@ -58,6 +64,35 @@ Team * Team::Create(const char * name)
     that = new Team(name);
 
     return that;
+}
+
+
+void Team::PrintTeam(void)
+{
+    int season;
+
+    printf("%s: %d seasons, Max games: %d\n", m_name, m_num_seasons, m_max_num_games);
+    //for(season = 0; season < m_num_seasons; season++)
+    //{
+    //    printf("%d, ", m_num_games_ps[season]);
+    //}
+    //printf("\n");
+}
+
+
+/*******************************************************************/
+/*                     Team :: GetLatestSeason                     */
+/*  Description: Return the most recent season value               */
+/*  Input:  (VOID)                                                 */
+/*  Output: Unsigned Int: The last year stored in m_seasons        */
+/*                                                                 */
+/*******************************************************************/
+unsigned int Team::GetLatestSeason(void)
+{
+    unsigned int season = 0;
+    if(m_num_seasons)    { season = m_seasons[m_num_seasons-1]; }
+
+    return season;
 }
 
 
@@ -159,7 +194,52 @@ int Team::GetFinalRank(int season)
 bool Team::AddGameResult(int season, const Team * const opponent, 
         int score, gameLocation location)
 {
-    return false;
+    bool retval = false;
+    unsigned int cur_sn = (m_num_seasons) ? m_num_seasons - 1 : 0;
+    unsigned int cur_gm;
+
+    if(cur_sn < C_MAX_SEASONS)
+    {
+        if(season == m_seasons[cur_sn])
+            { cur_gm = m_num_games_ps[cur_sn]; }
+        else    
+        { 
+            if(m_num_seasons)    
+            { 
+                if(m_num_games_ps[cur_sn] > m_max_num_games)
+                    { m_max_num_games = m_num_games_ps[cur_sn]; }
+                cur_sn++; 
+            }
+            m_seasons[cur_sn] = season;
+            m_num_seasons++;    
+            cur_gm = 0; 
+        }
+
+        if(cur_gm < C_MAX_GAMES)
+        {
+            m_location_pg[(cur_sn * C_MAX_GAMES) + cur_gm] = location;
+            m_result_pg[(cur_sn * C_MAX_GAMES) + cur_gm] = score;
+            if(score > 0)           { m_wins_ps[cur_sn]++; }
+            else if(score == 0)     { m_ties_ps[cur_sn]++; }
+            else                    { m_losses_ps[cur_sn]++; }
+            m_num_games_ps[cur_sn]++;
+            retval = true;
+        }
+        else
+        {
+            printf("Current game index is greater than the "
+                "max number of games\n");
+            retval = false;
+        }
+    }
+    else
+    {
+        printf("Current season index is greater than the "
+            "max number of seasons\n");
+        retval = false;
+    }
+
+    return retval;
 }
 
 
@@ -302,8 +382,10 @@ Team::Team(const char * name)
 {
     m_name = new char[strlen(name)];
     m_num_seasons       = 0;
+    m_game_it           = 0;
     m_final_score       = 0.0;
     m_num_titles        = 0;
+    m_max_num_games     = 0;
 
     m_seasons           = new int[C_MAX_SEASONS];
     m_num_aa_ps         = new int[C_MAX_SEASONS];
@@ -320,9 +402,9 @@ Team::Team(const char * name)
     m_init_rank_ps      = new int[C_MAX_SEASONS];
     m_final_rank_ps     = new int[C_MAX_SEASONS];
 
-    m_opp_pg            = NULL;
-    m_location_pg       = NULL;
-    m_result_pg         = NULL;
+    m_opp_pg            = (Team **) new void*[C_MAX_SEASONS * C_MAX_GAMES];
+    m_location_pg       = new gameLocation[C_MAX_SEASONS * C_MAX_GAMES];
+    m_result_pg         = new int[C_MAX_SEASONS * C_MAX_GAMES];
 
     strcpy(m_name, name);
 
@@ -339,6 +421,9 @@ Team::Team(const char * name)
     memset(m_final_score_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
     memset(m_init_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
     memset(m_final_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_opp_pg, 0x00, sizeof(void *) * C_MAX_SEASONS * C_MAX_GAMES);
+    memset(m_location_pg, 0x00, sizeof(gameLocation) * C_MAX_SEASONS * C_MAX_GAMES);
+    memset(m_result_pg, 0x00, sizeof(int) * C_MAX_SEASONS * C_MAX_GAMES);
     /*m_seasons           = NULL;
     m_num_aa_ps         = NULL;
     m_num_games_ps      = NULL;

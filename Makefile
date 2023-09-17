@@ -9,12 +9,19 @@ TARGET := $(BLD_DIR)/FBS_Ranking.exe
 CLANGD_JSON := compile_commands.json
 
 CXX := clang++.exe
+CXX_FLAGS := -I$(INC_DIR)
+
+ifdef DEBUG
+	CXX_FLAGS := -g
+else
+	CXX_FLAGS :=
+endif
 
 $(TARGET): $(OBJS) $(CLANGD_JSON)
-	$(CXX) $(OBJS) -o $@
+	$(CXX) $(CXX_FLAGS) $(OBJS) -o $@
 
 $(OBJS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) -MJ $@.json -I$(INC_DIR) -c $< -o $@
+	$(CXX) -MJ $@.json -I$(INC_DIR) $(CXX_FLAGS) -c $< -o $@
 
 $(CLANGD_JSON): $(OBJS)
 	touch $@

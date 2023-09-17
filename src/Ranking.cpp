@@ -1,34 +1,44 @@
+#include <functional>
 #include <string>
 #include <list>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
 #include <algorithm>
+#include "Ranking.h"
 #include "Team.h"
 
 using namespace std;
-
 
 int main(int argc, char ** argv)
 {
     //First pass for determining unique FBS teams 
     const string C_FBS = "fbs";
-    vector<string> C_1_FIELDS = {"\"Home Team\"","\"Home Division\"",
-            "\"Away Team\"","\"Away Division\""};
-    int p1_field_indexes[] = {-1, -1, -1, -1};
+    vector<string> CSV_FIELDS = {"Season","Week","Season Type", "Start Date",
+            "Completed","Neutral Site", "Conference Game","Home Team",
+            "Home Conference", "Home Division","Home Points","Away Team",
+            "Away Conference","Away Division","Away Points"};
+    int p1_field_indexes[] = 
+            {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
     //Creating Teams list
     map<const string, Team *> team_list;
     map<const string, Team *>::iterator team_it;
-    Team * new_team = NULL;
+    Team * team_ptr = NULL;
+    map<const string, Team *>::iterator home_it;
+    map<const string, Team *>::iterator away_it;
+
+    gameResult new_game;
 
     char * fname = new char[256];
     int field_cnt, index_cnt, i;
+    unsigned int latest_sn;
     string line, field;
-    string team_info[4];
+    string game_info[CSV_FIELDS.size()];
     ifstream myfile;
     size_t pos, lastpos;// nextpos;
     vector<string>::iterator it;
@@ -49,9 +59,9 @@ int main(int argc, char ** argv)
             pos = line.find(',');
             while (pos != string::npos) 
             {
-                it = find(C_1_FIELDS.begin(),C_1_FIELDS.end(),
+                it = find(CSV_FIELDS.begin(),CSV_FIELDS.end(),
                         line.substr(lastpos, pos-lastpos));
-                if(C_1_FIELDS.end() != it)
+                if(CSV_FIELDS.end() != it)
                 {
                     p1_field_indexes[index_cnt] = field_cnt;
                     index_cnt++;
@@ -61,14 +71,16 @@ int main(int argc, char ** argv)
                 field_cnt++;
             }
 
-            if(!(p1_field_indexes[0] == -1 || p1_field_indexes[1] == -1 || 
-                p1_field_indexes[2] == -1 || p1_field_indexes[3] == -1))
+            if(!(p1_field_indexes[7] == -1 || p1_field_indexes[9] == -1 || 
+                p1_field_indexes[11] == -1 || p1_field_indexes[13] == -1))
             {
                 while(!myfile.eof())
                 {
                     getline(myfile, line);
                     if(line.size() > 10)
                     {
+                        
+                        new_game.reset();
 
                         field_cnt = index_cnt = 0;
                         lastpos = 0;
@@ -77,68 +89,90 @@ int main(int argc, char ** argv)
                         {
                             if(p1_field_indexes[index_cnt] == field_cnt)
                             {
-                                //cout << line.substr(lastpos, pos-lastpos) << " ";
-                                team_info[index_cnt] = line.substr(lastpos, pos-lastpos);
+                                game_info[index_cnt] = line.substr(lastpos, pos-lastpos);
                                 index_cnt++;
                             }
                             lastpos = ++pos;
                             pos = line.find(',', pos);
                             field_cnt++;
                         }
-                        //cout << "\n";
-                        if(C_FBS.compare(team_info[1]) == 0 && 
-                            team_list.find(team_info[0]) == team_list.end())
+                        game_info[index_cnt] = line.substr(lastpos);
+
+                        if(game_info[4].compare("true"))    { continue; }
+
+                        new_game.newResult(stoul(game_info[0]), 
+                            game_info[5].compare("false"), stoul(game_info[10]), 
+                            stoul(game_info[14]));
+                            
+                        home_it = team_list.find(game_info[7]);
+                        if(C_FBS.compare(game_info[9]) == 0 && 
+                            home_it == team_list.end())
                         {
-                            new_team = Team::Create(team_info[0].c_str());
-                            if(new_team)
+                            team_ptr = Team::Create(game_info[7].c_str());
+                            if(team_ptr)
                             {
-                                team_list.emplace(team_info[0], new_team);
-                                printf("Successfully created team: "
-                                    "%s - %p\n", team_info[0].c_str(), 
-                                    (void *) new_team);
-                                //cout << "Successfully created team: " <<
-                                //    team_info[0] << " @ " << new_team << "\n";
-                                new_team = NULL;
+                                team_list.emplace(game_info[7], team_ptr);
+                                //printf("Successfully created team: "
+                                //    "%s\n", game_info[7].c_str());
+                                new_game.addTeam(team_ptr, true);
+                                team_ptr = NULL;
                             }
                             else
                             {
                                 retval = -4;
-                                cout << "Unable to create team: " << team_info[0] 
+                                cout << "Unable to create team: " << game_info[7] 
                                     << "\n";
+                                break;
                             }
                         }
-                        //else    
-                        //{ 
-                        //    cout << team_info[0] << " already in list or not FBS\n"; 
-                        //}
+                        else if(home_it != team_list.end())
+                            { new_game.addTeam(home_it->second, true); }
 
-                        if(C_FBS.compare(team_info[3]) == 0 && 
-                            team_list.find(team_info[2]) == team_list.end())
+                        away_it = team_list.find(game_info[11]);
+                        if(C_FBS.compare(game_info[13]) == 0 && 
+                            away_it == team_list.end())
                         {
-                            new_team = Team::Create(team_info[2].c_str());
-                            if(new_team)
+                            team_ptr = Team::Create(game_info[11].c_str());
+                            if(team_ptr)
                             {
-                                team_list.emplace(team_info[2], new_team);
-                                printf("Successfully created team: "
-                                    "%s - %p\n", team_info[2].c_str(), 
-                                    (void *) new_team);
-                                //cout << "Successfully created team: " <<
-                                //    team_info[2] << " @ " << (void *) new_team << "\n";
-                                new_team = NULL;
+                                team_list.emplace(game_info[11], team_ptr);
+                                //printf("Successfully created team: "
+                                //    "%s\n", game_info[11].c_str());
+                                new_game.addTeam(team_ptr, false);
+                                team_ptr = NULL;
                             }
                             else
                             {
-                                retval = -4;
-                                cout << "Unable to create team: " << team_info[2] 
-                                    << "\n";
+                                retval = -5;
+                                cout << "Unable to create team: " << 
+                                    game_info[11] << "\n";
+                                break;
+                            }
+                        }
+                        else if(away_it != team_list.end())
+                            { new_game.addTeam(away_it->second, false); }
+
+                        if(C_FBS.compare(game_info[9]) == 0 &&
+                           C_FBS.compare(game_info[13]) == 0)
+                        {
+                            if(!new_game.storeResults())
+                            {
+                                retval = -6;
+                                break;
                             }
                         }
                     }
-                    //else    
-                    //{ 
-                    //    cout << team_info[2] << " already in list or not FBS\n"; 
-                    //}
                 }
+
+
+                if(retval == 0)
+                {
+                    for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                    {
+                        team_it->second->PrintTeam();
+                    }
+                }
+
             }
             else
             {
@@ -191,10 +225,10 @@ int main(int argc, char ** argv)
 
     ///TODO: Write statistics to output file
 
-    if(new_team)
+    if(team_ptr)
     {
-        new_team->~Team();
-        new_team = NULL;
+        team_ptr->~Team();
+        team_ptr = NULL;
     }
     if(!team_list.empty())
     {
@@ -207,4 +241,73 @@ int main(int argc, char ** argv)
     }
     if(fname)    { delete [] fname;    fname = NULL; }
     return retval;
+}
+
+
+void gameResult::reset(void)
+{
+    m_season = 0;
+    m_isNeutral = false;
+    m_home = NULL;
+    m_away = NULL;
+    m_hScore = 0;
+    m_aScore = 0;
+}
+
+
+void gameResult::addTeam(Team * team, bool isHome)
+{
+    assert(team);
+    if(isHome)    { m_home = team; }
+    else          { m_away = team; }
+}
+
+
+void gameResult::newResult(unsigned int season, bool isNeutral, 
+        unsigned int hScore, unsigned int aScore)
+{
+    m_season = season;
+    m_isNeutral = isNeutral;
+    m_hScore = hScore;
+    m_aScore = aScore;
+}
+
+
+bool gameResult::storeResults(void)
+{
+    bool retval = true;
+    if(m_home && m_away)
+    {
+        retval = m_home->AddGameResult(m_season, m_away, (m_hScore - m_aScore), 
+            (m_isNeutral) ? Team::NEUTRAL : Team::HOME);
+        if(retval)
+        {
+            retval = m_away->AddGameResult(m_season, m_home, (m_aScore-m_hScore), 
+                (m_isNeutral) ? Team::NEUTRAL : Team::AWAY);
+        }
+    }
+    else    { cout << "Failed to store results\n"; }
+
+    return retval;
+}
+
+
+gameResult::gameResult(void)
+{
+    m_season = 0;
+    m_isNeutral = false;
+    m_home = NULL;
+    m_away = NULL;
+    m_hScore = 0;
+    m_aScore = 0;
+}
+
+gameResult::~gameResult(void)
+{
+    m_season = 0;
+    m_isNeutral = false;
+    m_home = NULL;
+    m_away = NULL;
+    m_hScore = 0;
+    m_aScore = 0;
 }

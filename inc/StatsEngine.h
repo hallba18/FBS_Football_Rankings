@@ -1,0 +1,4 @@
+#ifndef STATS_ENGINE_H
+#define STATS_ENGINE_H
+
+#endif //STATS_ENGINE_H

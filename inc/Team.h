@@ -1,19 +1,25 @@
+#ifndef TEAM_H
+#define TEAM_H
+
 class Team
 {
-    const int C_MAX_SEASONS = 40;
-
-    enum gameLocation
-    {
-        AWAY = -1,
-        NEUTRAL,
-        HOME
-    };
+    const int C_MAX_SEASONS     = 40;
+    const int C_MAX_GAMES       = 15;
 
 	public:
+        enum gameLocation
+        {
+            AWAY = -1,
+            NEUTRAL,
+            HOME
+        };
+
         ~Team(void);
 		static Team * Create(const char * name);
 
         //Get functions for private members
+        void PrintTeam(void);
+        unsigned int GetLatestSeason(void);
         double GetWinPct(int season);
         double GetOppWinPct(int season);
         double GetInitialScore(int season);
@@ -40,6 +46,7 @@ class Team
         unsigned int m_game_it;         //Iterator for games in a season
 		double m_final_score;           //Final historical score for school
 		int m_num_titles;               //Number of National Titles won
+        int m_max_num_games;
 
         //Per-Season (ps) Statistics Members
 		int * m_seasons;                //List of seasons played
@@ -59,9 +66,9 @@ class Team
         int * m_final_rank_ps;          //Final ranking per season
 
         //Per-Game (pg) Members
-		Team ** * m_opp_pg;             //Pointer to opponent teams each season
-        gameLocation ** m_location_pg;  //List of game locations each season
-        int ** m_result_pg;             //List of game results each season
+		Team ** m_opp_pg;               //Pointer to opponent teams each season
+        gameLocation * m_location_pg;   //List of game locations each season
+        int * m_result_pg;              //List of game results each season
 
         //Private Methods
         Team(const char * name);
@@ -70,3 +77,5 @@ class Team
         bool CalcFinalScore(int season);
         int GetSeasonIndex(int season);
 };
+
+#endif //TEAM_H
