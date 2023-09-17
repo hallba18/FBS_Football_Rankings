@@ -57,11 +57,11 @@ Team::~Team(void)
 /*  Output: Team *: Pointer to the new Team object                 */
 /*                                                                 */
 /*******************************************************************/
-Team * Team::Create(const char * name)
+Team * Team::Create(const char * name, bool isFBS)
 {
     Team * that = NULL;
 
-    that = new Team(name);
+    that = new Team(name, isFBS);
 
     return that;
 }
@@ -71,12 +71,14 @@ void Team::PrintTeam(void)
 {
     int season;
 
-    printf("%s: %d seasons, Max games: %d\n", m_name, m_num_seasons, m_max_num_games);
-    //for(season = 0; season < m_num_seasons; season++)
-    //{
-    //    printf("%d, ", m_num_games_ps[season]);
-    //}
-    //printf("\n");
+    printf("%s: %d seasons, Records: \n", m_name, m_num_seasons);
+    for(season = 0; season < m_num_seasons; season++)
+    {
+        printf("%f", m_o_opp_winpct_ps[season]);
+        //if(m_ties_ps[season]) { printf("-%d",m_ties_ps[season]); }
+        printf(", ");
+    }
+    printf("\n");
 }
 
 
@@ -106,7 +108,26 @@ unsigned int Team::GetLatestSeason(void)
 /*******************************************************************/
 double Team::GetWinPct(int season)
 {
-    return 0.0;
+    double retval = 0;
+    int index, i;
+
+    if(m_isFBS)
+    {
+        for(i = 0; i < m_num_seasons; i++)
+        {
+            if(season == m_seasons[i]) retval = m_winpct_ps[i];
+        }
+        if(i == m_num_seasons)
+        {
+            retval = -2.0;
+        }
+
+    }
+    else {
+        retval = -1.0;
+    }
+
+    return retval;
 }
 
 
@@ -191,7 +212,7 @@ int Team::GetFinalRank(int season)
 /*  Output: Boolean: Was the game successfully added to the team   */
 /*                                                                 */
 /*******************************************************************/
-bool Team::AddGameResult(int season, const Team * const opponent, 
+bool Team::AddGameResult(int season, Team * opponent, 
         int score, gameLocation location)
 {
     bool retval = false;
@@ -219,6 +240,7 @@ bool Team::AddGameResult(int season, const Team * const opponent,
         {
             m_location_pg[(cur_sn * C_MAX_GAMES) + cur_gm] = location;
             m_result_pg[(cur_sn * C_MAX_GAMES) + cur_gm] = score;
+            m_opp_pg[(cur_sn * C_MAX_GAMES) + cur_gm] = opponent;
             if(score > 0)           { m_wins_ps[cur_sn]++; }
             else if(score == 0)     { m_ties_ps[cur_sn]++; }
             else                    { m_losses_ps[cur_sn]++; }
@@ -267,9 +289,21 @@ bool Team::AddSeasonResult(int season, int num_AA, bool claimed_NT)
 /*  Output: Boolean: Was the win percentage successfully calculated*/
 /*                                                                 */
 /*******************************************************************/
-bool Team::CalcWinPct(int season)
+bool Team::CalcWinPct(void)
 {
-    return false;
+    bool retval = false;
+    int index, i;
+    double winpct;
+
+    for(i = 0; i < m_num_seasons; i++)
+    {
+        winpct = m_wins_ps[i] + (0.5 * m_ties_ps[i]);
+        winpct /= m_num_games_ps[i];
+        m_winpct_ps[i] = winpct;
+    }
+
+
+    return true;
 }
 
 
@@ -282,9 +316,30 @@ bool Team::CalcWinPct(int season)
 /*      calculated                                                 */
 /*                                                                 */
 /*******************************************************************/
-bool Team::CalcOppWinPct(int season)
+bool Team::CalcOppWinPct(void)
 {
-    return false;
+    int season, op, cnt, gm_index;
+    double temp, op_win_pct;
+
+    for(season = 0; season < m_num_seasons; season++)
+    {
+        cnt = 0;
+        op_win_pct = 0.0;
+        for(op = 0; op < m_num_games_ps[season]; op++)
+        {
+            gm_index = (season * C_MAX_GAMES) + op;
+            temp = m_opp_pg[gm_index]->GetWinPct(m_seasons[season]);
+            if(temp >= 0) 
+            {
+                op_win_pct += temp;
+                cnt++;
+            }
+        }
+        op_win_pct /= (double) cnt;
+        m_opp_winpct_ps[season] = op_win_pct;
+    }
+
+    return true;
 }
 
 
@@ -378,9 +433,10 @@ int Team::GetSeasonIndex(int season)
 /*******************************************************************/
 /*                     Constructor & Destructor                    */
 /*******************************************************************/
-Team::Team(const char * name)
+Team::Team(const char * name, bool isFBS)
 {
-    m_name = new char[strlen(name)];
+    m_name              = new char[strlen(name)];
+    m_isFBS             = isFBS;
     m_num_seasons       = 0;
     m_game_it           = 0;
     m_final_score       = 0.0;

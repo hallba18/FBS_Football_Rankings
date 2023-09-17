@@ -15,7 +15,7 @@ class Team
         };
 
         ~Team(void);
-		static Team * Create(const char * name);
+		static Team * Create(const char * name, bool isFBS);
 
         //Get functions for private members
         void PrintTeam(void);
@@ -29,19 +29,20 @@ class Team
 
         //Add functions
         bool AddGameCount(int season);
-        bool AddGameResult(int season, const Team * const opponent, 
+        bool AddGameResult(int season, Team * opponent, 
                 int score, gameLocation location);
         bool AddSeasonResult(int season, int num_AA, bool claimed_NT);
 
         //Finalize Functions
-        bool CalcWinPct(int season);
-        bool CalcOppWinPct(int season);
+        bool CalcWinPct(void);
+        bool CalcOppWinPct(void);
         //bool FinalizeSeason(int season);
         //bool FinalizeHistory(void);
 
 	private:
         //Historical Statistics Members
 		char * m_name;                  //School name
+        bool m_isFBS;
 		unsigned int m_num_seasons;     //Number of season in FBS
         unsigned int m_game_it;         //Iterator for games in a season
 		double m_final_score;           //Final historical score for school
@@ -71,7 +72,7 @@ class Team
         int * m_result_pg;              //List of game results each season
 
         //Private Methods
-        Team(const char * name);
+        Team(const char * name, bool isFBS);
         bool CalcOppOppWinPct(int season);
         bool CalcInitialScore(int season);
         bool CalcFinalScore(int season);

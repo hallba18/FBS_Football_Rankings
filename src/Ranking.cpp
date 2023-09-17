@@ -29,6 +29,7 @@ int main(int argc, char ** argv)
     map<const string, Team *> team_list;
     map<const string, Team *>::iterator team_it;
     Team * team_ptr = NULL;
+    Team * fcs_team = NULL;
     map<const string, Team *>::iterator home_it;
     map<const string, Team *>::iterator away_it;
 
@@ -108,7 +109,7 @@ int main(int argc, char ** argv)
                         if(C_FBS.compare(game_info[9]) == 0 && 
                             home_it == team_list.end())
                         {
-                            team_ptr = Team::Create(game_info[7].c_str());
+                            team_ptr = Team::Create(game_info[7].c_str(), true);
                             if(team_ptr)
                             {
                                 team_list.emplace(game_info[7], team_ptr);
@@ -127,12 +128,17 @@ int main(int argc, char ** argv)
                         }
                         else if(home_it != team_list.end())
                             { new_game.addTeam(home_it->second, true); }
+                        else 
+                        {
+                            if(fcs_team == NULL)    { fcs_team = Team::Create("FCS", false); }
+                            new_game.addTeam(fcs_team, true);
+                        }
 
                         away_it = team_list.find(game_info[11]);
                         if(C_FBS.compare(game_info[13]) == 0 && 
                             away_it == team_list.end())
                         {
-                            team_ptr = Team::Create(game_info[11].c_str());
+                            team_ptr = Team::Create(game_info[11].c_str(), true);
                             if(team_ptr)
                             {
                                 team_list.emplace(game_info[11], team_ptr);
@@ -151,6 +157,11 @@ int main(int argc, char ** argv)
                         }
                         else if(away_it != team_list.end())
                             { new_game.addTeam(away_it->second, false); }
+                        else 
+                        {
+                            if(fcs_team == NULL)    { fcs_team = Team::Create("FCS", false); }
+                            new_game.addTeam(fcs_team, false);
+                        }
 
                         if(C_FBS.compare(game_info[9]) == 0 &&
                            C_FBS.compare(game_info[13]) == 0)
@@ -169,6 +180,8 @@ int main(int argc, char ** argv)
                 {
                     for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
                     {
+                        team_it->second->CalcWinPct();
+                        team_it->second->CalcOppWinPct();
                         team_it->second->PrintTeam();
                     }
                 }
