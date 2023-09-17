@@ -74,7 +74,7 @@ void Team::PrintTeam(void)
     printf("%s: %d seasons, Records: \n", m_name, m_num_seasons);
     for(season = 0; season < m_num_seasons; season++)
     {
-        printf("%f", m_o_opp_winpct_ps[season]);
+        printf("%f", m_opp_winpct_ps[season]);
         //if(m_ties_ps[season]) { printf("-%d",m_ties_ps[season]); }
         printf(", ");
     }
