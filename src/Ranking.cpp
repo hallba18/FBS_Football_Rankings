@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <limits>
 #include "Ranking.h"
 #include "Team.h"
 
@@ -27,7 +28,9 @@ int main(int argc, char ** argv)
 
     //Creating Teams list
     map<const string, Team *> team_list;
+    map<double, Team *> ranking_list;
     map<const string, Team *>::iterator team_it;
+    map<double, Team *>::iterator ranking_it;
     Team * team_ptr = NULL;
     Team * fcs_team = NULL;
     map<const string, Team *>::iterator home_it;
@@ -36,8 +39,9 @@ int main(int argc, char ** argv)
     gameResult new_game;
 
     char * fname = new char[256];
-    int field_cnt, index_cnt, i;
+    int field_cnt, index_cnt, i, season;
     unsigned int latest_sn;
+    double temp;
     string line, field;
     string game_info[CSV_FIELDS.size()];
     ifstream myfile;
@@ -179,11 +183,41 @@ int main(int argc, char ** argv)
                 if(retval == 0)
                 {
                     for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                        { team_it->second->CalcWinPcts(); }
+                    for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                        { team_it->second->CalcOppWinPcts(); }
+                    for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                        { team_it->second->CalcOppOppWinPcts(); }
+                    for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                        { team_it->second->CalcInitialScores(); }
+
+                    for(season = 1983; season < 2023; season++)
                     {
-                        team_it->second->CalcWinPct();
-                        team_it->second->CalcOppWinPct();
-                        team_it->second->PrintTeam();
+                        for(team_it = team_list.begin(); 
+                            team_it != team_list.end(); ++team_it)
+                        {
+                            temp = team_it->second->GetInitialScore(season);
+                            if(temp != std::numeric_limits<double>::max() &&
+                               temp != -1 * std::numeric_limits<double>::max())
+                            {
+                                ranking_list.emplace(temp, team_it->second);
+                            }
+                        }
+
+                        i = 0;
+                        for(ranking_it = ranking_list.begin(); 
+                            ranking_it != ranking_list.end(); ++ranking_it)
+                        {
+                            ranking_it->second->SetInitialRank(season, 
+                                ranking_list.size() - i);
+                            i++;
+                        }
+                        ranking_list.clear();
                     }
+
+
+                    //for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                    //    { team_it->second->PrintTeam(); }
                 }
 
             }

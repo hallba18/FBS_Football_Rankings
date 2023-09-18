@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cassert>
 #include <cstdio>
+#include <limits>
 #include "Team.h"
 
 /*******************************************************************/
@@ -22,6 +23,8 @@ Team::~Team(void)
         { delete [] m_losses_ps;    m_losses_ps = NULL; }
     if(m_ties_ps)           
         { delete [] m_ties_ps;    m_ties_ps = NULL; }
+    if(m_avg_mov_ps)         
+        { delete [] m_avg_mov_ps;    m_avg_mov_ps = NULL; }
     if(m_winpct_ps)         
         { delete [] m_winpct_ps;    m_winpct_ps = NULL; }
     if(m_opp_winpct_ps)     
@@ -71,14 +74,15 @@ void Team::PrintTeam(void)
 {
     int season;
 
-    printf("%s: %d seasons, Records: \n", m_name, m_num_seasons);
+    /*printf("%s: %d seasons, Records: \n", m_name, m_num_seasons);
     for(season = 0; season < m_num_seasons; season++)
     {
-        printf("%f", m_opp_winpct_ps[season]);
+        printf("%f", m_init_score_ps[season]);
         //if(m_ties_ps[season]) { printf("-%d",m_ties_ps[season]); }
         printf(", ");
     }
-    printf("\n");
+    printf("\n");*/
+    printf("%s", m_name);
 }
 
 
@@ -115,7 +119,11 @@ double Team::GetWinPct(int season)
     {
         for(i = 0; i < m_num_seasons; i++)
         {
-            if(season == m_seasons[i]) retval = m_winpct_ps[i];
+            if(season == m_seasons[i]) 
+            {
+                retval = m_winpct_ps[i];
+                break;
+            }
         }
         if(i == m_num_seasons)
         {
@@ -141,7 +149,30 @@ double Team::GetWinPct(int season)
 /*******************************************************************/
 double Team::GetOppWinPct(int season)
 {
-    return 0.0;
+    double retval = 0;
+    int index, i;
+
+    if(m_isFBS)
+    {
+        for(i = 0; i < m_num_seasons; i++)
+        {
+            if(season == m_seasons[i]) 
+            {
+                retval = m_opp_winpct_ps[i];
+                break;
+            }
+        }
+        if(i == m_num_seasons)
+        {
+            retval = -2.0;
+        }
+
+    }
+    else {
+        retval = -1.0;
+    }
+
+    return retval;
 }
 
 
@@ -155,7 +186,30 @@ double Team::GetOppWinPct(int season)
 /*******************************************************************/
 double Team::GetInitialScore(int season)
 {
-    return 0.0;
+    double retval = 0;
+    int index, i;
+
+    if(m_isFBS)
+    {
+        for(i = 0; i < m_num_seasons; i++)
+        {
+            if(season == m_seasons[i]) 
+            {
+                retval = m_init_score_ps[i];
+                break;
+            }
+        }
+        if(i == m_num_seasons)
+        {
+            retval = -1 * std::numeric_limits<double>::max();
+        }
+
+    }
+    else {
+        retval = std::numeric_limits<double>::max();
+    }
+
+    return retval;
 }
 
 
@@ -218,6 +272,7 @@ bool Team::AddGameResult(int season, Team * opponent,
     bool retval = false;
     unsigned int cur_sn = (m_num_seasons) ? m_num_seasons - 1 : 0;
     unsigned int cur_gm;
+    double delta, temp;
 
     if(cur_sn < C_MAX_SEASONS)
     {
@@ -244,7 +299,12 @@ bool Team::AddGameResult(int season, Team * opponent,
             if(score > 0)           { m_wins_ps[cur_sn]++; }
             else if(score == 0)     { m_ties_ps[cur_sn]++; }
             else                    { m_losses_ps[cur_sn]++; }
+
             m_num_games_ps[cur_sn]++;
+            temp = (double) score;
+            delta = temp - m_avg_mov_ps[cur_sn];
+            m_avg_mov_ps[cur_sn] += delta / (double) m_num_games_ps[cur_sn];
+            
             retval = true;
         }
         else
@@ -262,6 +322,27 @@ bool Team::AddGameResult(int season, Team * opponent,
     }
 
     return retval;
+}
+
+
+void Team::SetInitialRank(int season, int rank)
+{
+    assert(season);
+    assert(rank);
+    int i;
+    
+    for(i = 0; i < m_num_seasons; i++)
+    {
+        if(season == m_seasons[i]) 
+        {
+            m_init_rank_ps[i] = rank;
+            break;
+        }
+    }
+    if(i == m_num_seasons)
+    {
+        printf("\n\n\nERROR\n\n\n");
+    }
 }
 
 
@@ -289,15 +370,16 @@ bool Team::AddSeasonResult(int season, int num_AA, bool claimed_NT)
 /*  Output: Boolean: Was the win percentage successfully calculated*/
 /*                                                                 */
 /*******************************************************************/
-bool Team::CalcWinPct(void)
+bool Team::CalcWinPcts(void)
 {
     bool retval = false;
     int index, i;
-    double winpct;
+    double winpct, mean, delta;
 
     for(i = 0; i < m_num_seasons; i++)
     {
-        winpct = m_wins_ps[i] + (0.5 * m_ties_ps[i]);
+        winpct = (double) m_wins_ps[i];
+        winpct += ((double) m_ties_ps[i]) / 2;
         winpct /= m_num_games_ps[i];
         m_winpct_ps[i] = winpct;
     }
@@ -311,12 +393,12 @@ bool Team::CalcWinPct(void)
 /*                     Team :: CalcOppWinPct                       */
 /*  Description: Iterate through each opponent and calculate the   */
 /*      average opponent's win percentage                          */
-/*  Input:  Integer "season": Year                                 */
+/*  Input:  Void                                                   */
 /*  Output: Boolean: Was the opponent's win percentage successfully*/
 /*      calculated                                                 */
 /*                                                                 */
 /*******************************************************************/
-bool Team::CalcOppWinPct(void)
+bool Team::CalcOppWinPcts(void)
 {
     int season, op, cnt, gm_index;
     double temp, op_win_pct;
@@ -337,6 +419,66 @@ bool Team::CalcOppWinPct(void)
         }
         op_win_pct /= (double) cnt;
         m_opp_winpct_ps[season] = op_win_pct;
+    }
+
+    return true;
+}
+
+
+/*******************************************************************/
+/*                     Team :: CalcOppOppWinPct                    */
+/*  Description: Iterate through each opponent to calculate the    */
+/*      average opponent's opponent win percentage                 */
+/*  Input:  Void                                                   */
+/*  Output: Boolean: Was the opponent's opponent win percentage    */
+/*      successfully calculated                                    */
+/*                                                                 */
+/*******************************************************************/
+bool Team::CalcOppOppWinPcts(void)
+{
+    int season, op, cnt, gm_index;
+    double temp, opp_opp_win_pct;
+
+    for(season = 0; season < m_num_seasons; season++)
+    {
+        cnt = 0;
+        opp_opp_win_pct = 0.0;
+        for(op = 0; op < m_num_games_ps[season]; op++)
+        {
+            gm_index = (season * C_MAX_GAMES) + op;
+            temp = m_opp_pg[gm_index]->GetOppWinPct(m_seasons[season]);
+            if(temp >= 0) 
+            {
+                opp_opp_win_pct += temp;
+                cnt++;
+            }
+        }
+        opp_opp_win_pct /= (double) cnt;
+        m_o_opp_winpct_ps[season] = opp_opp_win_pct;
+    }
+
+    return true;
+}
+
+
+/*******************************************************************/
+/*                    Team :: CalcInitialScore                     */
+/*  Description: Calculate the intial score for a team's season    */
+/*  Input:  Integer "season": Year                                 */
+/*  Output: Boolean: Was the initial score calculated successfully */
+/*                                                                 */
+/*******************************************************************/
+bool Team::CalcInitialScores(void)
+{
+    int season;
+    double temp;
+
+    for(season = 0; season < m_num_seasons; season++)
+    {
+        temp = 2 * m_opp_winpct_ps[season];
+        temp += m_o_opp_winpct_ps[season];
+        temp *= m_avg_mov_ps[season];
+        m_init_score_ps[season] = temp / 3.0;
     }
 
     return true;
@@ -367,34 +509,6 @@ bool Team::CalcOppWinPct(void)
 /*******************************************************************/
 /*                         Private Methods                         */
 /*******************************************************************/
-
-/*******************************************************************/
-/*                     Team :: CalcOppOppWinPct                    */
-/*  Description: Iterate through each opponent to calculate the    */
-/*      average opponent's opponent win percentage                 */
-/*  Input:  Integer "season": Year                                 */
-/*  Output: Boolean: Was the opponent's opponent win percentage    */
-/*      successfully calculated                                    */
-/*                                                                 */
-/*******************************************************************/
-bool Team::CalcOppOppWinPct(int season)
-{
-    return false;
-}
-
-
-/*******************************************************************/
-/*                    Team :: CalcInitialScore                     */
-/*  Description: Calculate the intial score for a team's season    */
-/*  Input:  Integer "season": Year                                 */
-/*  Output: Boolean: Was the initial score calculated successfully */
-/*                                                                 */
-/*******************************************************************/
-bool Team::CalcInitialScore(int season)
-{
-    return false;
-}
-
 
 /*******************************************************************/
 /*                     Team :: CalcFinalScore                      */
@@ -449,6 +563,7 @@ Team::Team(const char * name, bool isFBS)
     m_wins_ps           = new int[C_MAX_SEASONS];
     m_losses_ps         = new int[C_MAX_SEASONS];
     m_ties_ps           = new int[C_MAX_SEASONS];
+    m_avg_mov_ps        = new double[C_MAX_SEASONS];
     m_winpct_ps         = new double[C_MAX_SEASONS];
     m_opp_winpct_ps     = new double[C_MAX_SEASONS];
     m_o_opp_winpct_ps   = new double[C_MAX_SEASONS];
@@ -464,22 +579,23 @@ Team::Team(const char * name, bool isFBS)
 
     strcpy(m_name, name);
 
-    memset(m_seasons, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_num_aa_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_num_games_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_wins_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_losses_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_ties_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_winpct_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
-    memset(m_opp_winpct_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
-    memset(m_o_opp_winpct_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
-    memset(m_init_score_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
-    memset(m_final_score_ps, 0x00, sizeof(double) * C_MAX_SEASONS);
-    memset(m_init_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_final_rank_ps, 0x00, sizeof(int) * C_MAX_SEASONS);
-    memset(m_opp_pg, 0x00, sizeof(void *) * C_MAX_SEASONS * C_MAX_GAMES);
-    memset(m_location_pg, 0x00, sizeof(gameLocation) * C_MAX_SEASONS * C_MAX_GAMES);
-    memset(m_result_pg, 0x00, sizeof(int) * C_MAX_SEASONS * C_MAX_GAMES);
+    memset(m_seasons,           0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_num_aa_ps,         0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_num_games_ps,      0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_wins_ps,           0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_losses_ps,         0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_ties_ps,           0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_avg_mov_ps,        0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_winpct_ps,         0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_opp_winpct_ps,     0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_o_opp_winpct_ps,   0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_init_score_ps,     0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_final_score_ps,    0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_init_rank_ps,      0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_final_rank_ps,     0x00, sizeof(int) * C_MAX_SEASONS);
+    memset(m_opp_pg,            0x00, sizeof(void *) * C_MAX_SEASONS * C_MAX_GAMES);
+    memset(m_location_pg,       0x00, sizeof(gameLocation) * C_MAX_SEASONS * C_MAX_GAMES);
+    memset(m_result_pg,         0x00, sizeof(int) * C_MAX_SEASONS * C_MAX_GAMES);
     /*m_seasons           = NULL;
     m_num_aa_ps         = NULL;
     m_num_games_ps      = NULL;
