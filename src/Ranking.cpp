@@ -182,6 +182,7 @@ int main(int argc, char ** argv)
 
                 if(retval == 0)
                 {
+
                     for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
                         { team_it->second->CalcWinPcts(); }
                     for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
@@ -209,13 +210,46 @@ int main(int argc, char ** argv)
                             ranking_it != ranking_list.end(); ++ranking_it)
                         {
                             ranking_it->second->SetInitialRank(season, 
-                                ranking_list.size() - i);
+                                ranking_list.size() - i, ranking_list.size()+1);
                             i++;
                         }
+                        fcs_team->SetInitialRank(season, ranking_list.size()+1,
+                            ranking_list.size()+1);
                         ranking_list.clear();
                     }
 
+                    for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
+                        { team_it->second->CalcFinalScores(); }
 
+
+                    for(season = 1983; season < 2023; season++)
+                    {
+                        for(team_it = team_list.begin(); 
+                            team_it != team_list.end(); ++team_it)
+                        {
+                            temp = team_it->second->GetFinalScore(season);
+                            if(temp != std::numeric_limits<double>::max() &&
+                               temp != -1 * std::numeric_limits<double>::max())
+                            {
+                                ranking_list.emplace(temp, team_it->second);
+                            }
+                        }
+
+                        i = 0;
+                        printf("%d: ",season);
+                        for(ranking_it = ranking_list.begin(); 
+                            ranking_it != ranking_list.end(); ++ranking_it)
+                        {
+                            //ranking_it->second->SetInitialRank(season, 
+                            //    ranking_list.size() - i, ranking_list.size()+1);
+                            //i++;
+                            ranking_it->second->PrintTeam();
+                        }
+                        printf("\n\n");
+                        //fcs_team->SetInitialRank(season, ranking_list.size()+1,
+                        //    ranking_list.size()+1);
+                        ranking_list.clear();
+                    }
                     //for(team_it = team_list.begin(); team_it != team_list.end(); ++team_it)
                     //    { team_it->second->PrintTeam(); }
                 }

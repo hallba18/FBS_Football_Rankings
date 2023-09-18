@@ -31,7 +31,7 @@ class Team
         bool AddGameCount(int season);
         bool AddGameResult(int season, Team * opponent, 
                 int score, gameLocation location);
-        void SetInitialRank(int season, int rank);
+        void SetInitialRank(int season, int rank, int num_teams);
         bool AddSeasonResult(int season, int num_AA, bool claimed_NT);
 
         //Finalize Functions
@@ -39,6 +39,7 @@ class Team
         bool CalcOppWinPcts(void);
         bool CalcOppOppWinPcts(void);
         bool CalcInitialScores(void);
+        bool CalcFinalScores(void);
         //bool FinalizeSeason(int season);
         //bool FinalizeHistory(void);
 
@@ -67,6 +68,7 @@ class Team
         //Per-Season (ps) Score Members
         double * m_init_score_ps;       //Initial ranking score per season
         double * m_final_score_ps;      //Final score per season
+        int * m_num_teams_ps;           //Number of teams in a season
         int * m_init_rank_ps;           //Intial ranking per season
         int * m_final_rank_ps;          //Final ranking per season
 
@@ -77,7 +79,6 @@ class Team
 
         //Private Methods
         Team(const char * name, bool isFBS);
-        bool CalcFinalScore(int season);
         int GetSeasonIndex(int season);
 };
 

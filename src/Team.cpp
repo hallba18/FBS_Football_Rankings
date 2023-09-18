@@ -1,8 +1,10 @@
+#include <cmath>
 #include <cstddef>
 #include <cstring>
 #include <cassert>
 #include <cstdio>
 #include <limits>
+#include <cmath>
 #include "Team.h"
 
 /*******************************************************************/
@@ -35,6 +37,8 @@ Team::~Team(void)
         { delete [] m_init_score_ps;    m_init_score_ps = NULL; }
     if(m_final_score_ps)    
         { delete [] m_final_score_ps;    m_final_score_ps = NULL; }
+    if(m_num_teams_ps)      
+        { delete [] m_num_teams_ps;    m_num_teams_ps = NULL; }
     if(m_init_rank_ps)      
         { delete [] m_init_rank_ps;    m_init_rank_ps = NULL; }
     if(m_final_rank_ps)     
@@ -223,7 +227,34 @@ double Team::GetInitialScore(int season)
 /*******************************************************************/
 double Team::Team::GetFinalScore(int season)
 {
-    return 0.0;
+    double retval = 0;
+    int index, i;
+
+    if(m_isFBS)
+    {
+        if(season)
+        {
+            for(i = 0; i < m_num_seasons; i++)
+            {
+                if(season == m_seasons[i]) 
+                {
+                    retval = m_final_score_ps[i];
+                    break;
+                }
+            }
+            if(i == m_num_seasons)
+            {
+                retval = -1 * std::numeric_limits<double>::max();
+            }
+        }
+        else    { retval = m_final_score; }
+
+    }
+    else {
+        retval = std::numeric_limits<double>::max();
+    }
+
+    return retval;
 }
 
 
@@ -237,7 +268,20 @@ double Team::Team::GetFinalScore(int season)
 /*******************************************************************/
 int Team::GetInitialRank(int season)
 {
-    return 0;
+    int retval = 0;
+    int index, i;
+
+    for(i = 0; i < m_num_seasons; i++)
+    {
+        if(season == m_seasons[i]) 
+        {
+            retval = m_init_rank_ps[i];
+            break;
+        }
+    }
+    assert(i != m_num_seasons);
+
+    return retval;
 }
 
 
@@ -325,7 +369,7 @@ bool Team::AddGameResult(int season, Team * opponent,
 }
 
 
-void Team::SetInitialRank(int season, int rank)
+void Team::SetInitialRank(int season, int rank, int num_teams)
 {
     assert(season);
     assert(rank);
@@ -335,6 +379,7 @@ void Team::SetInitialRank(int season, int rank)
     {
         if(season == m_seasons[i]) 
         {
+            m_num_teams_ps[i] = num_teams;
             m_init_rank_ps[i] = rank;
             break;
         }
@@ -486,6 +531,41 @@ bool Team::CalcInitialScores(void)
 
 
 /*******************************************************************/
+/*                     Team :: CalcFinalScore                      */
+/*  Description: Calculate teh final score for a team's season     */
+/*  Input:  Integer "season": Year                                 */
+/*  Output: Boolean: Was the final score calculated successfully   */
+/*                                                                 */
+/*******************************************************************/
+bool Team::CalcFinalScores()
+{
+    int season, cnt, op, gm_index;
+    double temp, MoV, sum, rank, score;
+
+    m_final_score = 0.0;
+    for(season = 0; season < m_num_seasons; season++)
+    {
+        cnt = 0;
+        sum = 0.0;
+        for(op = 0; op < m_num_games_ps[season]; op++)
+        {
+            gm_index = (season * C_MAX_GAMES) + op;
+            rank = (double) m_opp_pg[gm_index]->GetInitialRank(m_seasons[season]);
+            score = (double) m_result_pg[gm_index];
+            temp = (score < 0) ? -1.0 : 1.0;
+            temp *= (double) m_init_rank_ps[season] - rank;
+            temp /= (double) m_num_teams_ps[season];
+            sum += score * pow(3,temp);
+        }
+        m_final_score_ps[season] = sum;
+        m_final_score += sum;
+    }
+
+    return true;
+}
+
+
+/*******************************************************************/
 /* Class :: Template */
 /*  Description: */
 /*  Input:  Type "input1": */
@@ -509,19 +589,6 @@ bool Team::CalcInitialScores(void)
 /*******************************************************************/
 /*                         Private Methods                         */
 /*******************************************************************/
-
-/*******************************************************************/
-/*                     Team :: CalcFinalScore                      */
-/*  Description: Calculate teh final score for a team's season     */
-/*  Input:  Integer "season": Year                                 */
-/*  Output: Boolean: Was the final score calculated successfully   */
-/*                                                                 */
-/*******************************************************************/
-bool Team::CalcFinalScore(int season)
-{
-    return false;
-}
-
 
 /*******************************************************************/
 /*                     Team :: GetSeasonIndex                      */
@@ -570,6 +637,7 @@ Team::Team(const char * name, bool isFBS)
 
     m_init_score_ps     = new double[C_MAX_SEASONS];
     m_final_score_ps    = new double[C_MAX_SEASONS];
+    m_num_teams_ps      = new int[C_MAX_SEASONS];
     m_init_rank_ps      = new int[C_MAX_SEASONS];
     m_final_rank_ps     = new int[C_MAX_SEASONS];
 
@@ -591,6 +659,7 @@ Team::Team(const char * name, bool isFBS)
     memset(m_o_opp_winpct_ps,   0x00, sizeof(double) * C_MAX_SEASONS);
     memset(m_init_score_ps,     0x00, sizeof(double) * C_MAX_SEASONS);
     memset(m_final_score_ps,    0x00, sizeof(double) * C_MAX_SEASONS);
+    memset(m_num_teams_ps,      0x00, sizeof(int) * C_MAX_SEASONS);
     memset(m_init_rank_ps,      0x00, sizeof(int) * C_MAX_SEASONS);
     memset(m_final_rank_ps,     0x00, sizeof(int) * C_MAX_SEASONS);
     memset(m_opp_pg,            0x00, sizeof(void *) * C_MAX_SEASONS * C_MAX_GAMES);
