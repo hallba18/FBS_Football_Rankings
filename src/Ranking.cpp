@@ -167,14 +167,10 @@ int main(int argc, char ** argv)
                             new_game.addTeam(fcs_team, false);
                         }
 
-                        if(C_FBS.compare(game_info[9]) == 0 &&
-                           C_FBS.compare(game_info[13]) == 0)
+                        if(!new_game.storeResults())
                         {
-                            if(!new_game.storeResults())
-                            {
-                                retval = -6;
-                                break;
-                            }
+                            retval = -6;
+                            break;
                         }
                     }
                 }
