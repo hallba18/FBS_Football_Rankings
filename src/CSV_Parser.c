@@ -9,7 +9,7 @@ int main(int argc, char * argv[])
 	char fname[256];
 	char oname[256];
 	char line[64][64];
-	char * categories[] = { "Season","Week","Season Type","Start Date","Completed", 
+	char * categories[] = { "Id","Season","Week","Season Type","Start Date","Completed", 
 						    "Neutral Site","Conference Game","Home Team","Home Conference", 
 						    "Home Division","Home Points","Away Team","Away Conference", 
 						    "Away Division","Away Points" };
@@ -49,6 +49,10 @@ int main(int argc, char * argv[])
 						eoc = false;
 						accFieldCnt = 0;
 						memset(line, 0x00, 64*64*sizeof(char));
+                        tmp = fgetc(fp);
+                        //Handles any byte order bytes at the beginning of each file
+                        while(!feof(fp) && tmp != '"')
+                            { tmp = fgetc(fp); }
 						for(field = 0; (field < 64 && !eol && !feof(fp)); field++)
 						{
 							cnt = 0;
@@ -61,7 +65,11 @@ int main(int argc, char * argv[])
 									line[field][cnt] = tmp; 
 									cnt++;
 								}
-								if(tmp == ',')    { break; }
+								if(tmp == ',')    
+                                { 
+                                    //if(cnt == 0)    { strcpy(line[field], "false"); }
+                                    break; 
+                                }
 								else if(tmp == '\n' && feof(fp))    { eol = true;    eof = true; }
 								else if(tmp == '\n')    { eol = true;    break; }
 							}

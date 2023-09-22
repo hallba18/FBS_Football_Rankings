@@ -19,6 +19,7 @@ class Team
 
         //Get functions for private members
         void PrintTeam(void);
+        bool GetIsFBS(void);
         unsigned int GetLatestSeason(void);
         double GetWinPct(int season);
         double GetOppWinPct(int season);

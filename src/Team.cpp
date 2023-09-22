@@ -90,6 +90,10 @@ void Team::PrintTeam(void)
 }
 
 
+bool Team::GetIsFBS(void)
+    { return m_isFBS; }
+
+
 /*******************************************************************/
 /*                     Team :: GetLatestSeason                     */
 /*  Description: Return the most recent season value               */
