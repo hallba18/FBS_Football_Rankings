@@ -78,7 +78,7 @@ int main(int argc, char * argv[])
 							{
 								accFields[accFieldCnt] = field;
 								if(year == 1983)
-									{ fprintf(ofp, "\"%s\"%s", line[field], (eol ? "" : ",")); }
+									{ fprintf(ofp, "%s%s", line[field], (eol ? "" : ",")); }
 								accFieldCnt++;
 							}
 							else if(lineCnt != 0 && field == accFields[accFieldCnt])

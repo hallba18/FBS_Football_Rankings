@@ -388,7 +388,7 @@ void Team::SetInitialRank(int season, int rank, int num_teams)
             break;
         }
     }
-    if(i == m_num_seasons)
+    if(m_isFBS && i == m_num_seasons)
     {
         printf("\n\n\nERROR\n\n\n");
     }

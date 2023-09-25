@@ -1,4 +1,4 @@
-"Id","Season","Week","Season Type","Start Date","Completed","Neutral Site","Conference Game","Home Team","Home Conference","Home Division","Home Points","Away Team","Away Conference","Away Division","Away Points",
+Id,Season,Week,Season Type,Start Date,Completed,Neutral Site,Conference Game,Home Team,Home Conference,Home Division,Home Points,Away Team,Away Conference,Away Division,Away Points
 51967,1983,1,regular,1983-08-29T00:00:00.000Z,true,false,,Nebraska,Big 8,fbs,44,Penn State,FBS Independents,fbs,6
 52645,1983,1,postseason,1983-12-10T00:00:00.000Z,true,true,,Air Force,Western Athletic,fbs,9,Ole Miss,SEC,fbs,3
 52649,1983,1,postseason,1983-12-17T00:00:00.000Z,true,true,,Tennessee,SEC,fbs,30,Maryland,ACC,fbs,23

@@ -111,8 +111,12 @@ int main(int argc, char ** argv)
                         game_info[index_cnt] = line.substr(lastpos);
 
                         Id = stol(game_info[0]);
-                        if(lastId && (Id * 2) < lastId)    { continue; }   
-                        else    { lastId = Id; }
+                        if(lastId && (Id * 2) < lastId)    
+                        {
+                            lastId = Id; 
+                            continue; 
+                        }
+                        lastId = Id; 
                         
                         if(game_info[5].compare("true"))    { continue; }
 
